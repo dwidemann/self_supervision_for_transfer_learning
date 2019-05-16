@@ -13,8 +13,8 @@ To install:
 
 Create the docker image and container 
 
-    docker build -f Dockerfile.gpu -t SS4TL .
-    docker run -v /home/username:/home/username --name SS4TL -it SS4TL bash
+    docker build -f Dockerfile.gpu -t ss4tl .
+    docker run -v /home/username:/home/username --name ss4tl -it ss4tl bash
 
 This repo was started from [victoresque's PyTorch Template Project](https://github.com/victoresque/pytorch-template)
 
