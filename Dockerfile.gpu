@@ -1,0 +1,44 @@
+FROM nvidia/cuda:9.0-runtime-ubuntu16.04 
+LABEL Description="This is an image for the SS4TL repo"
+LABEL version="0.1"
+
+# Update packages system packages so it can find wget and ca-certificates
+# Non-standard packages will FAIL because the labs cert is NOT installed yet. To get
+# around this we just default the command to success by | true
+RUN apt-get update | true
+# Here we are updating the image packages and installing the following packages:
+# # ca-certificates and wget.
+RUN apt-get install -y wget \
+					ca-certificates 
+
+# Install LLNL Cert
+RUN wget https://access.llnl.gov/cspca.cer --no-check-certificate \
+    -O /usr/local/share/ca-certificates/cspca.crt | true
+
+
+# Update the system, so that it is aware of the new cert.
+RUN update-ca-certificates
+
+# No make sure we update ALL packages now that lab certs are setup. 
+RUN apt-get update && apt-get install -y --no-install-recommends apt-utils
+
+
+# Developer Essentials
+RUN apt-get install -y --no-install-recommends git curl openssh-client \ 
+wget emacs vim
+
+
+# For convenience, alisas (but don't sym-link) python & pip to python3 & pip3 as recommended in:
+# http://askubuntu.com/questions/351318/changing-symlink-python-to-python3-causes-problems
+RUN apt-get install -y --no-install-recommends python3.5 python3.5-dev python3-pip
+RUN pip3 install --no-cache-dir --upgrade pip setuptools
+RUN echo "alias python='python3'" >> /root/.bash_aliases
+RUN echo "alias pip='pip3'" >> /root/.bash_aliases
+
+COPY requirements.txt /home/requirements.txt
+RUN pip install -r /home/requirements.txt
+
+RUN apt-get clean && \
+    apt-get autoremove
+
+CMD ["/bin/bash"]
