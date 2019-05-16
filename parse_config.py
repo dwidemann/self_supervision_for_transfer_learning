@@ -13,6 +13,7 @@ class ConfigParser:
         # parse default and custom cli options
         for opt in options:
             args.add_argument(*opt.flags, default=None, type=opt.type)
+
         try:
             args = args.parse_args()
         except:
