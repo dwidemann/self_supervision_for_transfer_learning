@@ -32,9 +32,29 @@ def main(config, resume):
     logger.info('Loading checkpoint: {} ...'.format(resume))
     checkpoint = torch.load(resume)
     state_dict = checkpoint['state_dict']
-    if config['n_gpu'] > 1:
-        model = torch.nn.DataParallel(model)
-    model.load_state_dict(state_dict)
+    try:
+        if config['n_gpu'] > 1:
+            model = torch.nn.DataParallel(model)
+        model.load_state_dict(state_dict)
+    except:
+        from collections import OrderedDict
+        new_state_dict = OrderedDict()
+
+        for k, v in state_dict.items():
+            if 'module' not in k:
+                k = 'module.'+k
+            else:
+                k = k.replace('features.module.', 'module.features.')
+            new_state_dict[k]=v
+
+        model.load_state_dict(new_state_dict)
+        # from collections import OrderedDict
+        # new_state_dict = OrderedDict()
+        # for k, v in state_dict.items():
+        #     name = k[7:] # remove `module.`
+        #     new_state_dict[name] = v
+        # # load params
+        # model.load_state_dict(new_state_dict)        
 
     # prepare model for testing
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

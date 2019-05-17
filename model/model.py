@@ -57,7 +57,8 @@ class AE_MnistModel(BaseModel):
             nn.Conv2d(10, 20, kernel_size=5),
             nn.ReLU(True),
             nn.BatchNorm2d(20),
-            nn.AvgPool2d(20),
+            #nn.AvgPool2d(20),
+            nn.AdaptiveAvgPool2d((1, 1))
             )
         self.decoder = nn.Sequential(
             nn.ConvTranspose2d(20, 20, kernel_size=5, stride=1, dilation=2, bias=False),
