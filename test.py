@@ -6,7 +6,7 @@ import model.loss as module_loss
 import model.metric as module_metric
 import model.model as module_arch
 from parse_config import ConfigParser
-
+from utils import load_model
 
 def main(config, resume):
     logger = config.get_logger('test')
@@ -31,31 +31,8 @@ def main(config, resume):
     metric_fns = [getattr(module_metric, met) for met in config['metrics']]
 
     logger.info('Loading checkpoint: {} ...'.format(resume))
-    checkpoint = torch.load(resume)
-    state_dict = checkpoint['state_dict']
-    try:
-        if config['n_gpu'] > 1:
-            model = torch.nn.DataParallel(model)
-        model.load_state_dict(state_dict)
-    except:
-        from collections import OrderedDict
-        new_state_dict = OrderedDict()
-
-        for k, v in state_dict.items():
-            if 'module' not in k:
-                k = 'module.'+k
-            else:
-                k = k.replace('features.module.', 'module.features.')
-            new_state_dict[k]=v
-
-        model.load_state_dict(new_state_dict)
-        # from collections import OrderedDict
-        # new_state_dict = OrderedDict()
-        # for k, v in state_dict.items():
-        #     name = k[7:] # remove `module.`
-        #     new_state_dict[name] = v
-        # # load params
-        # model.load_state_dict(new_state_dict)        
+    n_gpu = config['n_gpu']
+    model = load_model(model,n_gpu,resume)       
 
     # prepare model for testing
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

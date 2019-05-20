@@ -1,0 +1,55 @@
+{
+    "name": "fineTune_mnist_with_pretraining",
+    "n_gpu": 4,
+
+    "arch": {
+        "type": "FineTuneModel",
+        "args": {
+            "base_arch": "AE_MnistModel",
+            "latent_dim": 20,
+            "num_classes": 10,
+            "base_ckpt_pth": "/Users/widemann1/Documents/adapd/ss4tl/ae_results/models/ae_mnist/0518_185527/model_best.pth"
+        }
+    },
+    "data_loader": {
+        "type": "MnistDataLoader",
+        "args":{
+            "data_dir": "data/",
+            "batch_size": 128,
+            "shuffle": true,
+            "validation_split": 0.99,
+            "num_workers": 2
+        }
+    },
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 0.001,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+    "loss": "nll_loss",
+    "metrics": [
+        "my_metric", "my_metric2"
+    ],
+    "lr_scheduler": {
+        "type": "StepLR",
+        "args": {
+            "step_size": 50,
+            "gamma": 0.1
+        }
+    },
+    "trainer": {
+        "epochs": 100,
+
+        "save_dir": "../fineTune_results",
+        "save_period": 1,
+        "verbosity": 2,
+        
+        "monitor": "min val_loss",
+        "early_stop": 10,
+        
+        "tensorboardX": true
+    }
+}

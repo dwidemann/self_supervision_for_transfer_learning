@@ -1,6 +1,8 @@
 import torch.nn as nn
 import torch.nn.functional as F
 from base import BaseModel
+import model as module_arch
+from utils import load_model
 
 class Flatten(nn.Module):
     def forward(self, input):
@@ -72,3 +74,21 @@ class AE_MnistModel(BaseModel):
         x = self.decoder(x)
         return x
     
+class FineTuneModel(BaseModel):
+    def __init__(self, base_arch='AE_MnistModel',latent_dim=20,num_classes=10,base_ckpt_pth=None):
+        super(FineTuneModel, self).__init__()
+        self.base_arch = base_arch
+        self.latent_dim = latent_dim
+        self.num_classes = num_classes
+        self.base_ckpt_pth = base_ckpt_pth
+        ae_model = getattr(module_arch.model, base_arch)()
+        if base_ckpt_pth:
+            ae_model = load_model(ae_model,n_gpu=0,model_ckpt=base_ckpt_pth)
+        self.base_model = ae_model.encoder
+        self.last_layer = nn.Linear(latent_dim,num_classes)
+
+    def forward(self, x):
+        x = self.base_model(x)
+        x = x.view(-1,self.latent_dim)
+        x = self.last_layer(x)
+        return F.log_softmax(x, dim=1)
