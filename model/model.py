@@ -48,11 +48,11 @@ class autoencoder(BaseModel):
         return x
 
 class AE_MnistModel(BaseModel):
-    def __init__(self, latent_dim=10):
+    def __init__(self, latent_dim=20,num_channels=1):
         super(AE_MnistModel, self).__init__()
         self.latent_dim = latent_dim
         self.encoder = nn.Sequential(
-            nn.Conv2d(1, 10, kernel_size=5),
+            nn.Conv2d(num_channels, 10, kernel_size=5),
             nn.ReLU(True),
             nn.BatchNorm2d(10),
             nn.MaxPool2d(2),
@@ -67,13 +67,43 @@ class AE_MnistModel(BaseModel):
             nn.BatchNorm2d(20),
             nn.ConvTranspose2d(20, 10, kernel_size=5, stride=1, dilation=2, bias=False),
             nn.BatchNorm2d(10),
-            nn.ConvTranspose2d(10,1,kernel_size=2,stride=2,padding=3,dilation=1)
+            nn.ConvTranspose2d(10,num_channels,kernel_size=2,stride=2,padding=3,dilation=1)
+        )
+    def forward(self, x):
+        x = self.encoder(x)
+        x = self.decoder(x)
+        return x
+
+class AE_Apron(BaseModel):
+    def __init__(self, latent_dim=20,num_channels=1):
+        super(AE_Apron, self).__init__()
+        self.latent_dim = latent_dim
+        self.encoder = nn.Sequential(
+            nn.Conv2d(num_channels, 10, kernel_size=5),
+            nn.ReLU(True),
+            nn.BatchNorm2d(10),
+            nn.MaxPool2d(2),
+            nn.Conv2d(10, 20, kernel_size=5),
+            nn.ReLU(True),
+            nn.BatchNorm2d(20),
+            #nn.AvgPool2d(20),
+            nn.AdaptiveAvgPool2d((1, 1))
+            )
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(20, 50, kernel_size=5, stride=1, dilation=2, bias=False),
+            nn.BatchNorm2d(50),
+            nn.ConvTranspose2d(50, 100, kernel_size=5, stride=1, dilation=2, bias=False),
+            nn.BatchNorm2d(100),
+            nn.ConvTranspose2d(100,100,kernel_size=2,stride=2,padding=3,dilation=1),
+            nn.BatchNorm2d(100),
+            nn.ConvTranspose2d(100,num_channels,kernel_size=(7,421),dilation=3,stride=3),
         )
     def forward(self, x):
         x = self.encoder(x)
         x = self.decoder(x)
         return x
     
+
 class FineTuneModel(BaseModel):
     def __init__(self, base_arch='AE_MnistModel',latent_dim=20,num_classes=10,base_ckpt_pth=None):
         super(FineTuneModel, self).__init__()
