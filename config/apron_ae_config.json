@@ -1,6 +1,6 @@
 {
     "name": "ae_apron",
-    "n_gpu": 4,
+    "n_gpu": 1,
 
     "arch": {
         "type": "AE_Apron",
@@ -12,11 +12,11 @@
     "data_loader": {
         "type": "ApronDataLoader",
         "args": {
-            "data_dir": "/data/ADAPD/whole_apron_fft/apron_1m_unlabeled",
+            "data_dir": "/gsceph/adapd/phoenix_train_data/apron_1m_unlabeled",
             "batch_size": 16,
             "shuffle": true,
             "validation_split": 0.1,
-            "num_workers": 4
+            "num_workers": 0
         }
     },
     "optimizer": {

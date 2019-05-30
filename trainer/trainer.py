@@ -113,7 +113,8 @@ class Trainer(BaseTrainer):
                 self.writer.add_scalar('loss', loss.item())
                 total_val_loss += loss.item()
                 total_val_metrics += self._eval_metrics(output, target)
-                self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
+                # TODO: fix the line below to handle output with more than one channel. 
+                #self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
         # add histogram of model parameters to the tensorboard
         for name, p in self.model.named_parameters():
