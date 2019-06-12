@@ -43,13 +43,15 @@ class ApronDataLoader(BaseDataLoader):
                 for r in R:
                     data.append(r[:m]) # make sure each row has the same number of entries
                 data = np.array(data).astype('complex64')
-                normed_data = data/np.linalg.norm(data)
-                out = np.array([np.real(normed_data), np.imag(normed_data)])
+                # normalization will happen before the first layer with a batch_norm
+                #normed_data = data/np.linalg.norm(data)
+                #out = np.array([np.real(normed_data), np.imag(normed_data)])
+                out = np.array([np.real(data), np.imag(data)])
                 if unlabeled: # this is a hack. Not sure the correct way to do this. 
                     out = (out,np.nan)
                 return out
 
-        self.data = list(map(lambda x: _load_pkl_file(x),pkl_files))
+        self.data = list(map(lambda x: _load_pkl_file(x),pkl_files[:32]))
         #self.dataset = DataLoader(data,batch_size,shuffle,num_workers)
         super(ApronDataLoader, self).__init__(self.data, batch_size, shuffle, validation_split, num_workers)
 

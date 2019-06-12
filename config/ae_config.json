@@ -37,7 +37,7 @@
     "trainer": {
         "epochs": 100,
 
-        "save_dir": "../ae_esults",
+        "save_dir": "../ae_results",
         "save_period": 1,
         "verbosity": 2,
         

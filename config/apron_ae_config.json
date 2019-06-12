@@ -6,6 +6,7 @@
         "type": "AE_Apron",
         "autoencoder": true,
         "args": {
+            "latent_dim": 20,
             "num_channels": 2
         }
     },

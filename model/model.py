@@ -103,6 +103,41 @@ class AE_Apron(BaseModel):
         x = self.decoder(x)
         return x
     
+'''
+class AE_Apron(nn.Module):
+    def __init__(self, latent_dim=20,size=[2,100,1342]):
+        super(AE_Apron, self).__init__()
+        self.latent_dim = latent_dim
+        self.size = size
+        self.encoder = nn.Sequential(
+            nn.BatchNorm2d(self.size[0]),
+            nn.Conv2d(self.size[0], 10, kernel_size=5),
+            nn.ReLU(True),
+            nn.BatchNorm2d(10),
+            nn.MaxPool2d(2),
+            nn.Conv2d(10, 10, kernel_size=5),
+            nn.ReLU(True),
+            nn.BatchNorm2d(10),
+            nn.MaxPool2d(2),
+            nn.Conv2d(10, self.latent_dim, kernel_size=5),
+            #nn.BatchNorm2d(self.latent_dim),
+            #nn.AdaptiveAvgPool2d((1, 1))
+            )
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(self.latent_dim, 50, kernel_size=5, stride=1, dilation=2, bias=False),
+            nn.BatchNorm2d(50),
+            nn.ConvTranspose2d(50, 100, kernel_size=5, stride=1, dilation=2, bias=False),
+            nn.BatchNorm2d(100),
+            nn.ConvTranspose2d(100,100,kernel_size=3,stride=2,padding=3,dilation=1),
+            nn.BatchNorm2d(100),
+            #nn.ConvTranspose2d(100,self.size[0],kernel_size=3,dilation=1,stride=2),
+            nn.ConvTranspose2d(100,self.size[0],kernel_size=(7,421),dilation=3,stride=3)
+        )
+    def forward(self, x):
+        x = self.encoder(x)
+        x = self.decoder(x) #,self.size[0],output_size=self.size[1:])
+        return x
+'''
 
 class FineTuneModel(BaseModel):
     def __init__(self, base_arch='AE_MnistModel',latent_dim=20,num_classes=10,base_ckpt_pth=None):
