@@ -75,9 +75,45 @@ class AE_MnistModel(BaseModel):
         return x
 
 class AE_Apron(BaseModel):
-    def __init__(self, latent_dim=20,num_channels=1):
+    def __init__(self, latent_dim=20,num_channels=2):
         super(AE_Apron, self).__init__()
         self.latent_dim = latent_dim
+        self.encoder = nn.Sequential(
+            nn.BatchNorm2d(2),
+            nn.Conv2d(num_channels, 256, kernel_size=5),
+            nn.ReLU(True),
+            nn.BatchNorm2d(256),
+            nn.MaxPool2d(2),
+            nn.Conv2d(256, 512, kernel_size=5),
+            nn.ReLU(True),
+            nn.BatchNorm2d(512),
+            nn.AdaptiveAvgPool2d((1, 1))
+            )
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(512, 512, kernel_size=5, stride=1, dilation=2, bias=False),
+            nn.BatchNorm2d(512),
+            nn.ConvTranspose2d(512, 256, kernel_size=5, stride=1, dilation=2, bias=False),
+            nn.BatchNorm2d(256),
+            nn.ConvTranspose2d(256,256,kernel_size=2,stride=2,padding=3,dilation=1),
+            nn.BatchNorm2d(256),
+            nn.ConvTranspose2d(256,num_channels,kernel_size=(7,421),dilation=3,stride=3),
+            nn.BatchNorm2d(num_channels)
+        )
+    def forward(self, x):
+        x = self.encoder(x)
+        x = self.decoder(x)
+        return x
+
+'''
+class ApronModel(BaseModel):
+    def __init__(self, num_classes=4,num_channels=2):
+        super(ApronModel, self).__init__()
+        self.latent_dim = latent_dim
+        self.num_classes = num_classes
+        self.conv1 = nn.Conv2d(self.num_channels, 10, kernel_size=5)
+        self.maxpool = nn.MaxPool2d(2)
+        self.conv2 = nn.Conv2d(10, 20, kernel_size=5)
+
         self.encoder = nn.Sequential(
             nn.Conv2d(num_channels, 10, kernel_size=5),
             nn.ReLU(True),
@@ -89,21 +125,13 @@ class AE_Apron(BaseModel):
             #nn.AvgPool2d(20),
             nn.AdaptiveAvgPool2d((1, 1))
             )
-        self.decoder = nn.Sequential(
-            nn.ConvTranspose2d(20, 50, kernel_size=5, stride=1, dilation=2, bias=False),
-            nn.BatchNorm2d(50),
-            nn.ConvTranspose2d(50, 100, kernel_size=5, stride=1, dilation=2, bias=False),
-            nn.BatchNorm2d(100),
-            nn.ConvTranspose2d(100,100,kernel_size=2,stride=2,padding=3,dilation=1),
-            nn.BatchNorm2d(100),
-            nn.ConvTranspose2d(100,num_channels,kernel_size=(7,421),dilation=3,stride=3),
-        )
+
     def forward(self, x):
         x = self.encoder(x)
-        x = self.decoder(x)
+
         return x
     
-'''
+
 class AE_Apron(nn.Module):
     def __init__(self, latent_dim=20,size=[2,100,1342]):
         super(AE_Apron, self).__init__()

@@ -1,13 +1,14 @@
 {
-    "name": "ae_apron_generator",
+    "name": "fineTune_apron_no_pretraining",
     "n_gpu": 2,
 
     "arch": {
-        "type": "AE_Apron",
-        "autoencoder": true,
+        "type": "FineTuneModel",
         "args": {
+            "base_arch": "AE_Apron",
             "latent_dim": 512,
-            "num_channels": 2
+            "num_classes": 4,
+            "base_ckpt_pth": null
         }
     },
     "data_loader": {
@@ -22,14 +23,16 @@
     },
     "optimizer": {
         "type": "Adam",
-        "args": {
+        "args":{
             "lr": 0.001,
             "weight_decay": 0,
             "amsgrad": true
         }
     },
-    "loss": "mse_loss",
-    "metrics": [],
+    "loss": "nll_loss",
+    "metrics": [
+        "my_metric", "my_metric2"
+    ],
     "lr_scheduler": {
         "type": "StepLR",
         "args": {
@@ -40,7 +43,7 @@
     "trainer": {
         "epochs": 100,
 
-        "save_dir": "../ae_apron_results",
+        "save_dir": "../fineTune_apron_results",
         "save_period": 1,
         "verbosity": 2,
         
