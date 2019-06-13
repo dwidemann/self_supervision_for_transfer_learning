@@ -97,7 +97,6 @@ class AE_Apron(BaseModel):
             nn.ConvTranspose2d(256,256,kernel_size=2,stride=2,padding=3,dilation=1),
             nn.BatchNorm2d(256),
             nn.ConvTranspose2d(256,num_channels,kernel_size=(7,421),dilation=3,stride=3),
-            nn.BatchNorm2d(num_channels)
         )
     def forward(self, x):
         x = self.encoder(x)

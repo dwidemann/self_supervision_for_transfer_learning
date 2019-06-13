@@ -5,6 +5,7 @@ from glob import glob
 import pickle
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
+from sklearn.datasets import make_classification
 
 class MnistDataLoader(BaseDataLoader):
     """
@@ -106,3 +107,39 @@ class ApronDataLoaderGenerator(BaseDataLoader):
         super(ApronDataLoaderGenerator, self).__init__(self.data, batch_size, shuffle, validation_split, num_workers)
 
 
+class SyntheticApronDataset(Dataset):
+    def __init__(self, n_samples=10000,n_classes=4):
+        self.n_classes = n_classes
+        self.n_samples = n_samples
+        X, y = make_classification(n_features=2*100*1342, n_redundant=0, 
+                           n_informative=1000,
+                           random_state=1, n_clusters_per_class=1,
+                           n_samples=n_samples,
+                           n_classes=n_classes)
+
+        X = list(map(lambda x: x.reshape(2,100,1342).astype('float32'),X))
+
+        self.data = list(zip(X,y))
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        X,y = self.data[idx]
+        return X,y
+    
+    
+    
+class SyntheticApron(BaseDataLoader):
+    '''
+    DataLoader for the synthetic Apron data. 
+    '''
+    # TODO: Modify code so that it works for the few labeled Apron examples too.  
+    def __init__(self, n_samples=10000,n_classes=4, batch_size=16, shuffle=True, 
+                validation_split=0.1, num_workers=2, training=True):
+
+        self.n_samples = n_samples
+        self.n_classes = n_classes
+        self.data = SyntheticApronDataset(n_samples,n_classes)
+        super(SyntheticApron, self).__init__(self.data, batch_size, 
+             shuffle, validation_split, num_workers)
