@@ -79,9 +79,45 @@ class ApronDataset(Dataset):
             data = []
             for r in R:
                 data.append(r[:m]) # make sure each row has the same number of entries
+
+            data = np.array(data)
+            inds = np.arange(2,101,6)
+            sig = data[inds,:]
+            A = np.abs(sig)
+            A = np.log10(A)
+            
+            mu = A.mean(axis=1).reshape(len(inds),1)
+            std = A.std(axis=1).reshape(len(inds),1)
+            
+            data = (A-mu)/std
+            data = np.expand_dims(data,axis=0).astype('float32')
+        return data
+    '''
+    def load_pkl_file(self,fn):
+        with open(fn,'rb') as fid:
+            data = pickle.load(fid)
+            freqs, R = zip(*data)
+            L = []
+            for i in R:
+                L.append(len(i))
+            m = np.min(L)
+            data = []
+            for r in R:
+                data.append(r[:m]) # make sure each row has the same number of entries
+
+            inds = np.arange(2,101,6)
+            sig = data[:,inds,:]
+            A = np.sqrt(sig[0]**2 + sig[1]**2)
+            A = np.log10(A)
+            
+            mu = A.mean(axis=1).reshape(len(inds),1)
+            std = A.std(axis=1).reshape(len(inds),1)
+            
+            data = (A-mu)/std
             data = np.array(data).astype('complex64')
             out = np.array([np.real(data), np.imag(data)])
             return out
+    '''
 
     def __getitem__(self, idx):
         fn,y = self.data[idx]
