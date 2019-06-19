@@ -13,18 +13,18 @@
     "data_loader": {
         "type": "SyntheticApron",
         "args": {
-            "n_samples": 100,
+            "n_samples": 160,
             "n_classes": 4,
-            "batch_size": 16,
+            "batch_size": 8,
             "shuffle": true,
             "validation_split": 0.1,
-            "num_workers": 0
+            "num_workers": 2
         }
     },
     "optimizer": {
         "type": "Adam",
         "args": {
-            "lr": 0.001,
+            "lr": 0.01,
             "weight_decay": 0,
             "amsgrad": true
         }
