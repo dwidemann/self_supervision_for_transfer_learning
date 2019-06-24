@@ -6,6 +6,8 @@ import pickle
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from sklearn.datasets import make_classification
+from scipy.interpolate import interp2d
+
 
 class MnistDataLoader(BaseDataLoader):
     """
@@ -68,7 +70,7 @@ class ApronDataset(Dataset):
     def __len__(self):
         return len(self.data)
 
-    def load_pkl_file(self,fn):
+    def load_pkl_file(self,fn,interp=True):
         with open(fn,'rb') as fid:
             data = pickle.load(fid)
             freqs, R = zip(*data)
@@ -79,7 +81,7 @@ class ApronDataset(Dataset):
             data = []
             for r in R:
                 data.append(r[:m]) # make sure each row has the same number of entries
-
+    
             data = np.array(data)
             inds = np.arange(2,101,6)
             sig = data[inds,:]
@@ -90,7 +92,19 @@ class ApronDataset(Dataset):
             std = A.std(axis=1).reshape(len(inds),1)
             
             data = (A-mu)/std
-            data = np.expand_dims(data,axis=0).astype('float32')
+            
+            if interp:
+                num_freq_bins = 1342
+                interp = interp2d(range(num_freq_bins),
+                                  inds,
+                                  data,kind='linear')
+                new_width = 1024
+                new_height = 256
+                data = interp(np.linspace(0,num_freq_bins,new_width),
+                              np.linspace(inds[0],inds[-1],new_height))
+            data = data.astype('float32')
+            if len(data.shape) == 2:
+                data = np.expand_dims(data,axis=0)
         return data
     '''
     def load_pkl_file(self,fn):
@@ -121,7 +135,7 @@ class ApronDataset(Dataset):
 
     def __getitem__(self, idx):
         fn,y = self.data[idx]
-        X = self.load_pkl_file(fn)
+        X = self.load_pkl_file(fn,interp=True)
         if self.transform:
             X = self.transform(X)
         return X,y

@@ -9,8 +9,10 @@ import os, sys
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
+from scipy.interpolate import interp2d
+
 #%%
-def load_pkl_file(fn):
+def load_pkl_file(fn,interp=True):
     with open(fn,'rb') as fid:
         data = pickle.load(fid)
         freqs, R = zip(*data)
@@ -32,10 +34,19 @@ def load_pkl_file(fn):
         std = A.std(axis=1).reshape(len(inds),1)
         
         data = (A-mu)/std
+        if interp:
+            num_freq_bins = 1342
+            interp = interp2d(range(num_freq_bins),
+                              inds,
+                              data,kind='linear')
+            new_width = 1024
+            new_height = 256
+            data = interp(np.linspace(0,num_freq_bins,new_width),
+                          np.linspace(inds[0],inds[-1],new_height))
     return data
 
-def plot_unlabeled_sample(fn):
-    A_normalized = load_pkl_file(fn)
+def plot_unlabeled_sample(fn,rescale=True):
+    A_normalized = load_pkl_file(fn,rescale)
 
     #plt.style.use('ggplot')
     fig = plt.figure()
@@ -62,5 +73,12 @@ def plot_unlabeled_sample(fn):
 
 if __name__ == '__main__':
     fn = sys.argv[1]
-    plot_unlabeled_sample(fn)
+    rescale = 1
+    if len(sys.argv) > 1:
+        rescale = int(sys.argv[2])
+    plot_unlabeled_sample(fn,rescale)
+    
+    
+    
+    
     
