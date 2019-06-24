@@ -72,6 +72,8 @@ class Trainer(BaseTrainer):
                     self.data_loader.n_samples,
                     100.0 * batch_idx / len(self.data_loader),
                     loss.item()))
+                lr_now = self.lr_scheduler.get_lr()[0]
+                self.logger.debug('learning rate {:.2e}'.format(lr_now))
                 # TODO: fix the line below to handle output with more than one channel. 
                 #self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
