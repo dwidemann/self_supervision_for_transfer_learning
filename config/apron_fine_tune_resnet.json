@@ -1,23 +1,24 @@
 {
-    "name": "ae_apron_generator",
-    "n_gpu": 2,
+    "name": "ae_resnet_generator",
+    "n_gpu": 1,
 
     "arch": {
-        "type": "AE_Apron",
-        "autoencoder": true,
+        "type": "FineTuneModel",
         "args": {
-            "latent_dim": 512,
-            "num_channels": 1
+            "base_arch": "ResNet_AE",
+	    "latent_dim": 1000,
+            "num_classes": 4,
+            "base_ckpt_pth": "/home/widemann1/ss4tl/ae_resnet_results/models/ae_resnet_generator/0624_222704/model_best.pth"
         }
     },
     "data_loader": {
         "type": "ApronDataLoaderGenerator",
         "args": {
-            "data_dir": "/data/ADAPD/whole_apron_fft/train.pkl",
-            "batch_size": 16,
+            "data_dir": "/gsceph/adapd/phoenix_train_data/apron_labels",
+            "batch_size": 8,
             "shuffle": true,
             "validation_split": 0.1,
-            "num_workers": 0
+            "num_workers": 2
         }
     },
     "optimizer": {
@@ -28,8 +29,10 @@
             "amsgrad": true
         }
     },
-    "loss": "mse_loss",
-    "metrics": [],
+    "loss": "nll_loss",
+    "metrics": [
+        "my_metric", "my_metric2"
+    ],
     "lr_scheduler": {
         "type": "StepLR",
         "args": {
@@ -38,9 +41,9 @@
         }
     },
     "trainer": {
-        "epochs": 100,
+        "epochs": 1,
 
-        "save_dir": "../ae_apron_results",
+        "save_dir": "../fineTune_resnet_results",
         "save_period": 1,
         "verbosity": 2,
         

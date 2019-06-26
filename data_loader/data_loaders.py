@@ -147,13 +147,19 @@ class ApronDataLoaderGenerator(BaseDataLoader):
     DataLoader for the unlabeled Apron data. 
     '''
     # TODO: Modify code so that it works for the few labeled Apron examples too.  
-    def __init__(self, data_dir='/data/ADAPD/whole_apron_fft/train.pkl', batch_size=16, shuffle=True, 
+    def __init__(self, data_dir='/data/ADAPD/whole_apron_fft', batch_size=16, shuffle=True, 
                 validation_split=0.0, num_workers=2, training=True,unlabeled=True):
         trsfm = transforms.Compose([
             transforms.ToTensor()
         ])
         self.data_dir = data_dir
-        self.data = ApronDataset(data_dir)
+        self.training = training
+        if self.training:
+            pkl_file = os.path.join(data_dir,'train.pkl')
+        else:
+            pkl_file = os.path.join(data_dir,'test.pkl')
+        self.pkl_file = pkl_file
+        self.data = ApronDataset(pkl_file)
         super(ApronDataLoaderGenerator, self).__init__(self.data, batch_size, shuffle, validation_split, num_workers)
 
 
