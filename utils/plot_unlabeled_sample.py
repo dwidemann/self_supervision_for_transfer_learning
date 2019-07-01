@@ -45,7 +45,7 @@ def load_pkl_file(fn,interp=True):
                           np.linspace(inds[0],inds[-1],new_height))
     return data
 
-def plot_unlabeled_sample(fn,rescale=True):
+def plot_unlabeled_sample(fn,rescale=True,outfile=None):
     A_normalized = load_pkl_file(fn,rescale)
 
     #plt.style.use('ggplot')
@@ -61,7 +61,10 @@ def plot_unlabeled_sample(fn,rescale=True):
     fig.colorbar(im)
     # or we can utilise the get_data_ratio method which is more concise
     # ax.set_aspect(1.0/ax.get_data_ratio()*ratio)
-    plt.show()
+    if outfile:
+        plt.savefig(fname=outfile,dpi=300,format='png')
+    else:
+        plt.show()
     #%%
     # fig, axs = plt.subplots(0,0)
     # plt.imshow(A_normalized)
