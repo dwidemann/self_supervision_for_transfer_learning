@@ -7,17 +7,17 @@
         "autoencoder": true,
         "args": {
             "num_channels": 1,
-            "num_filters": 32
+            "num_filters": 128
         }
     },
     "data_loader": {
         "type": "ApronDataLoaderGenerator",
         "args": {
-            "data_dir": "/data/ADAPD/whole_apron_fft/train.pkl",
+            "data_dir": "/gsceph/adapd/phoenix_train_data/apron_labels/train.pkl",
             "batch_size": 16,
             "shuffle": true,
             "validation_split": 0.1,
-            "num_workers": 0
+            "num_workers": 4
         }
     },
     "optimizer": {
