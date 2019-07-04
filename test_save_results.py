@@ -18,7 +18,7 @@ def main(config, resume):
     # setup data_loader instances
     data_loader = getattr(module_data, config['data_loader']['type'])(
         config['data_loader']['args']['data_dir'],
-        batch_size=8,
+        batch_size=1,
         shuffle=False,
         validation_split=0.0,
         training=False,
@@ -46,6 +46,7 @@ def main(config, resume):
     total_metrics = torch.zeros(len(metric_fns))
 
     results = []
+    missed = []
     with torch.no_grad():
         for i, (data, target) in enumerate(tqdm(data_loader)):
             data, target = data.to(device), target.to(device)
@@ -64,12 +65,20 @@ def main(config, resume):
             for i, metric in enumerate(metric_fns):
                 total_metrics[i] += metric(output, target) * batch_size
             pred = list(output.argmax(dim=1).data.cpu().numpy())
-            results.append(zip((pred,list(target.data.cpu().numpy()))))
+            truth = list(target.data.cpu().numpy())
+            if pred != truth:
+                samp = data_loader.data.data[i]
+                fn,y = samp
+                misssed.append((pred,truth,fn,y,data.data.cpu().numpy()))
+            results.append((pred,truth))
     results = [i for sublist in results for i in sublist]
     results = np.array(results)#.astype('int32')
     results_fn = os.path.join(str(config.resume.parent),'results.pkl')
+    missed_fn = os.path.join(str(config.resume.parent),'missed.pkl')
     with open(results_fn,'wb') as fid:
         pickle.dump(results,fid)
+    with open(missed_fn,'wb') as fid:
+        pickle.dump(missed,fid)
     n_samples = len(data_loader.sampler)
     log = {'loss': total_loss / n_samples}
     log.update({
