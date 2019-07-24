@@ -140,6 +140,45 @@ class ApronDataset(Dataset):
             X = self.transform(X)
         return X,y
 
+class ApronDatasetSmall(Dataset):
+    def __init__(self, pkl_file, transform=None):
+
+        with open(pkl_file,'rb') as fid:
+            self.data = pickle.load(fid)
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        X,y = self.data[idx]
+        X = X.astype('float32')
+        if len(X.shape) == 2:
+            X = np.expand_dims(X,axis=0)
+        if self.transform:
+            X = self.transform(X)
+        return X,y
+
+
+class ApronDataLoaderSmall(BaseDataLoader):
+    '''
+    DataLoader for the unlabeled Apron data. 
+    '''
+    # TODO: Modify code so that it works for the few labeled Apron examples too.  
+    def __init__(self, data_dir='/data/ADAPD/whole_apron_fft', batch_size=16, shuffle=True, 
+                validation_split=0.0, num_workers=2, training=True,unlabeled=True):
+        trsfm = transforms.Compose([
+            transforms.ToTensor()
+        ])
+        self.data_dir = data_dir
+        self.training = training
+        if self.training:
+            pkl_file = os.path.join(data_dir,'train.pkl')
+        else:
+            pkl_file = os.path.join(data_dir,'test.pkl')
+        self.pkl_file = pkl_file
+        self.data = ApronDatasetSmall(pkl_file)
+        super(ApronDataLoaderSmall, self).__init__(self.data, batch_size, shuffle, validation_split, num_workers)
 
 
 class ApronDataLoaderGenerator(BaseDataLoader):
