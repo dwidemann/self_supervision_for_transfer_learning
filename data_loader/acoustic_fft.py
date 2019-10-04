@@ -14,7 +14,7 @@ from glob import glob
 import pickle
 import multiprocessing as mp 
 from time import time, sleep
-
+from scipy.signal import blackman
 #%%
 
 def save_fft(fn= 'Phoenix_Mar13-134312.bin',channel=5,outdir='acoustic_ffts'):
@@ -32,7 +32,8 @@ def save_fft(fn= 'Phoenix_Mar13-134312.bin',channel=5,outdir='acoustic_ffts'):
     N = D.shape[1]
     nfft = int(2**np.ceil(np.log2(N)))
     sig = D[channel]
-    S = rfft(sig, nfft)
+    blackman_window = blackman(len(sig))
+    S = rfft(blackman_window*sig, nfft)
     freqs = np.linspace(0,fs/2,len(S))
     kept_freqs = []
     for idx in harmonics:
