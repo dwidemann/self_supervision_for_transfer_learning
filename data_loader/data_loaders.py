@@ -98,10 +98,11 @@ class AcousticDataset(Dataset):
                 new_height = 256
                 data = interp(np.linspace(0,num_freq_bins,new_width),
                               np.linspace(inds[0],inds[-1],new_height))
-
+    
             data = data.astype('float32')
             if len(data.shape) == 2:
                 data = np.expand_dims(data,axis=0)
+            print(data.shape)
         return data
 
     def __getitem__(self, idx):
