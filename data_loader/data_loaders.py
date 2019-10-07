@@ -105,20 +105,20 @@ class AcousticDataset(Dataset):
         return data
 
     def __getitem__(self, idx):
-        fn,y = self.data[idx]
+        fn  = self.data[idx]
         # get the labels later. 
         #fn,y = self.data[idx]
         X = self.load_pkl_file(fn,interp=True)
         if self.transform:
             X = self.transform(X)
-        return X,y
+        return X
 
 class AcousticDataLoader(BaseDataLoader):
     '''
     DataLoader for the unlabeled Apron data. 
     '''
     # TODO: Modify code so that it works for the few labeled Apron examples too.  
-    def __init__(self, data_dir='/data/ADAPD/acoustic/train_test_split', batch_size=16, shuffle=True, 
+    def __init__(self, data_dir='/gsceph/adapd/acoustic/train_test_split', batch_size=2, shuffle=True, 
                 validation_split=0.0, num_workers=2, training=True,unlabeled=True):
         trsfm = transforms.Compose([
             transforms.ToTensor()
