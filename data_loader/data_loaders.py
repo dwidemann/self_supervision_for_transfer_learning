@@ -60,6 +60,82 @@ class ApronDataLoader(BaseDataLoader):
         super(ApronDataLoader, self).__init__(self.data, batch_size, shuffle, validation_split, num_workers)
 
 
+class AcousticDataset(Dataset):
+    def __init__(self, pkl_file, transform=None):
+        with open(pkl_file,'rb') as fid:
+            self.data = pickle.load(fid)
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.data)
+
+    def __len__(self):
+        return len(self.data)
+
+    def load_pkl_file(self,fn,interp=True):
+        with open(fn,'rb') as fid:
+            data = pickle.load(fid)
+            freqs = data['freqs']
+            R = data['sig']
+
+            sig = np.abs(R)
+            A = np.abs(sig)
+            A = np.log10(A)
+            
+            mu = A.mean(axis=1).reshape(A.shape[0],1)
+            std = A.std(axis=1).reshape(A.shape[0],1)
+            
+            data = (A-mu)/std
+            
+            if interp:
+                inds = range(A.shape[0])
+                num_freq_bins = data.shape[1]
+                interp = interp2d(range(num_freq_bins),
+                                  range(A.shape[0]),
+                                  data,kind='linear')
+
+                new_width = 1024
+                new_height = 256
+                data = interp(np.linspace(0,num_freq_bins,new_width),
+                              np.linspace(inds[0],inds[-1],new_height))
+
+            data = data.astype('float32')
+            if len(data.shape) == 2:
+                data = np.expand_dims(data,axis=0)
+        return data
+
+    def __getitem__(self, idx):
+        fn,y = self.data[idx]
+        # get the labels later. 
+        #fn,y = self.data[idx]
+        X = self.load_pkl_file(fn,interp=True)
+        if self.transform:
+            X = self.transform(X)
+        return X,y
+
+class AcousticDataLoader(BaseDataLoader):
+    '''
+    DataLoader for the unlabeled Apron data. 
+    '''
+    # TODO: Modify code so that it works for the few labeled Apron examples too.  
+    def __init__(self, data_dir='/data/ADAPD/acoustic/train_test_split', batch_size=16, shuffle=True, 
+                validation_split=0.0, num_workers=2, training=True,unlabeled=True):
+        trsfm = transforms.Compose([
+            transforms.ToTensor()
+        ])
+        self.data_dir = data_dir
+        self.training = training
+        if self.training:
+            pkl_file = os.path.join(data_dir,'train.pkl')
+        else:
+            pkl_file = os.path.join(data_dir,'test.pkl')
+        self.pkl_file = pkl_file
+        self.data = AcousticDataset(pkl_file)
+        super(AcousticDataLoader, self).__init__(self.data, batch_size, shuffle, validation_split, num_workers)
+
+
+
+
 class ApronDataset(Dataset):
     def __init__(self, pkl_file, transform=None):
 
