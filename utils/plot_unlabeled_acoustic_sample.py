@@ -8,8 +8,11 @@ Created on Fri Jun 14 16:55:04 2019
 import os, sys
 import numpy as np
 import matplotlib.pyplot as plt
+from glob import glob
 import pickle
 from scipy.interpolate import interp2d
+import multiprocessing as mp
+from time import time, sleep
 
 #%%
 def load_pkl_file(fn,interp=True):
@@ -40,8 +43,17 @@ def load_pkl_file(fn,interp=True):
                           np.linspace(inds[0],inds[-1],new_height))
 
         data = data.astype('float32')
-        print(data.shape)
     return data
+
+def mp_worker(d):
+    fn, rescale, outdir = d
+    t0 = time()
+    try: 
+        plot_unlabeled_sample(fn,rescale,outdir)
+        print("sample {} runtime: {:0.2f}".format(fn,time()-t0))
+    except Exception as e:
+        print('error {}: reason: {}'.format(fn, e))
+
 
 def plot_unlabeled_sample(fn,rescale=True,outfile=None):
     A_normalized = load_pkl_file(fn,rescale)
@@ -73,13 +85,26 @@ def plot_unlabeled_sample(fn,rescale=True,outfile=None):
     # plt.show()
 
 if __name__ == '__main__':
+    def mp_handler(num_cpus=30):
+        p = mp.Pool(num_cpus)
+        p.map(mp_worker, queue)
+
     fn = sys.argv[1]
     rescale = 1
     if len(sys.argv) > 2:
         rescale = int(sys.argv[2])
-    plot_unlabeled_sample(fn,rescale)
     
+    fns = glob(os.path.join(fn, '*.pkl') )
+
+    outdir='../images/unlabeled_acoustic/'
     
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)
+   
+    idx = fn.rfind('/') + 1 #get index of where the file name starts
+    queue = []
+    for f in fns:
+        queue.append((f, rescale, outdir + str(f[idx:].replace('pkl', 'png'))) )
     
-    
+    mp_handler()
     
