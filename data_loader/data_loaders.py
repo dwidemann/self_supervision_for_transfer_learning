@@ -78,14 +78,13 @@ class AcousticDataset(Dataset):
             freqs = data['freqs']
             R = data['sig']
 
-            sig = np.abs(R)
-            A = np.abs(sig)
-            A = np.log10(A)
+            A = np.abs(R)
+            A = np.log10(A + 1)
             
             mu = A.mean(axis=1).reshape(A.shape[0],1)
             std = A.std(axis=1).reshape(A.shape[0],1)
-            
-            data = (A-mu)/std
+            eps = 1e-6
+            data = (A-mu)/(std + eps)
             
             if interp:
                 inds = range(A.shape[0])
