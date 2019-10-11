@@ -13,7 +13,7 @@ import sounddevice as sd
 #%%
 def play_audio(fn,channel):
     numChannels = 8 # audio channels are 4-7 (vibrational are 0-3)
-    fs = 52100
+    fs = 51200
     #fn = '/Users/widemann1/Desktop/test_audio/Phoenix_Mar27-113358.bin'
     #channel = 4
     pngFn = os.path.basename(fn).replace('.bin','')

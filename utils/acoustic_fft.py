@@ -19,9 +19,9 @@ from scipy.signal import blackman
 
 def save_fft(fn= 'Phoenix_Mar13-134312.bin',channel=5,outdir='acoustic_ffts'):
     numChannels = 8 # audio channels are 4-7 (vibrational are 0-3)
-    fs = 52100
-    f0 = 1001
-    harmonics = range(1,27)
+    fs = 51200
+    f0 = 1002
+    harmonics = range(1,26)
     bandwidth = 40
     pngFn = os.path.basename(fn).replace('.bin','')
     s = pngFn.replace('Phoenix_','')
