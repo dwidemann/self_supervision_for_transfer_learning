@@ -9,10 +9,9 @@ Created on Tue Oct  1 13:50:30 2019
 import os, sys
 import numpy as np
 import matplotlib.pyplot as plt
-from numpy.fft import rfft
-from matplotlib.pyplot import figure
+import sounddevice as sd
 #%%
-def plot_fft(fn,channels):
+def play_audio(fn,channel):
     numChannels = 8 # audio channels are 4-7 (vibrational are 0-3)
     fs = 52100
     #fn = '/Users/widemann1/Desktop/test_audio/Phoenix_Mar27-113358.bin'
@@ -20,29 +19,15 @@ def plot_fft(fn,channels):
     pngFn = os.path.basename(fn).replace('.bin','')
     data = np.fromfile(fn, dtype='float32')
     D = data.reshape(len(data)//numChannels,numChannels)
-    N = D.shape[0]
-    nfft = int(2**np.ceil(np.log2(N)))
-    if type(channels) == int:
-        channels = [channels]
-    for channel in channels:
-        sig = D[:,channel]
-        outfile = '{}_FFT_channel{:d}.png'.format(pngFn,channel)
-        S = rfft(sig, nfft)
-        freqs = np.linspace(0,fs/2,len(S))
-        #fig = figure(figsize=(10, 10))
-        plt.plot(freqs,np.abs(S))
-        plt.xlabel('Frequency [Hz]')
-        plt.ylabel('Magnitude')
-        plt.title('{}_Channel {:d}'.format(pngFn.replace('Phoenix_',''),channel))
-        plt.show()
-        #plt.savefig(outfile, dpi=300)
+    sig = D[:,channel]
+    sd.play(sig,fs)
 
 
 #%%
 if __name__ == '__main__':
     fn = sys.argv[1]
-    channels = list(map(int,sys.argv[2].split(',')))
-    plot_fft(fn,channels)
+    channel = int(sys.argv[2])
+    play_audio(fn,channel)
     
     
 #%%
