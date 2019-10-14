@@ -13,7 +13,7 @@
     "data_loader": {
         "type": "AcousticDataLoader",
         "args": {
-            "data_dir": "/gsceph/adapd/acoustic/acoustic_ffts",
+            "data_dir": "/gsceph/adapd/acoustic/train_test_split/",
             "batch_size": 16,
             "shuffle": true,
             "validation_split": 0.1,

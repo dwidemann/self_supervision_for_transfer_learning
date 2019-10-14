@@ -105,13 +105,13 @@ class AcousticDataset(Dataset):
         return data
 
     def __getitem__(self, idx):
-        fn  = self.data[idx]
+        fn, label  = self.data[idx]
         # get the labels later. 
         #fn,y = self.data[idx]
         X = self.load_pkl_file(fn,interp=True)
         if self.transform:
             X = self.transform(X)
-        return X
+        return X, label
 
 class AcousticDataLoader(BaseDataLoader):
     '''

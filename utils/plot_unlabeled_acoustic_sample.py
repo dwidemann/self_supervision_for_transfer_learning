@@ -75,6 +75,8 @@ def plot_unlabeled_sample(fn,rescale=True,outfile=None):
         plt.savefig(fname=outfile,dpi=300,format='png')
     else:
         plt.show()
+    
+    plt.close(fig)
     #%%
     # fig, axs = plt.subplots(0,0)
     # plt.imshow(A_normalized)
