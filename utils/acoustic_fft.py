@@ -20,9 +20,9 @@ from scipy.signal import blackman
 def save_fft(fn= 'Phoenix_Mar13-134312.bin',channel=5,outdir='acoustic_ffts'):
     numChannels = 8 # audio channels are 4-7 (vibrational are 0-3)
     fs = 51200
-    f0 = 1002
-    harmonics = range(1,26)
-    bandwidth = 40
+    f0 = 1002.05
+    harmonics = [1,2,4]
+    bandwidth = .2
     pngFn = os.path.basename(fn).replace('.bin','')
     s = pngFn.replace('Phoenix_','')
     outfile = '{}_channel_{:d}_fft.pkl'.format(s,channel)
@@ -81,8 +81,10 @@ if __name__ == '__main__':
     outdir = sys.argv[2]
     if not os.path.exists(outdir):
         os.makedirs(outdir)
-    fns = glob(os.path.join(direc,'*','*.bin'))
- 
+    if os.path.isdir(direc):
+        fns = glob(os.path.join(direc,'*','*.bin'))
+    else:
+        fns = [direc]
     queue = []
     for f in fns:
         if debug:

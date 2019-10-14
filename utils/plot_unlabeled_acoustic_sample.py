@@ -96,8 +96,10 @@ if __name__ == '__main__':
     if len(sys.argv) > 2:
         rescale = int(sys.argv[2])
     
-    fns = glob(os.path.join(fn, '*.pkl') )
-
+    if os.path.isdir(fn):
+        fns = glob(os.path.join(fn, '*.pkl') )
+    else:
+        fns = [fn]
     outdir='../images/unlabeled_acoustic/'
     
     if not os.path.exists(outdir):
