@@ -23,7 +23,7 @@ def load_pkl_file(fn,interp=True, normalize=True):
 
         sig = np.abs(R)
         A = np.abs(sig)
-        A = np.log10(A + 1)
+        #A = np.log10(A + 1)
         
         if (normalize == True):
             print('normalizing the acoustic data.')
