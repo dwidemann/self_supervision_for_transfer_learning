@@ -15,7 +15,7 @@ import multiprocessing as mp
 from time import time, sleep
 
 #%%
-def load_pkl_file(fn,interp=True):
+def load_pkl_file(fn,interp=True, normalize=True):
     with open(fn,'rb') as fid:
         data = pickle.load(fid)
         freqs = data['freqs']
@@ -23,12 +23,18 @@ def load_pkl_file(fn,interp=True):
 
         sig = np.abs(R)
         A = np.abs(sig)
-        A = np.log10(A)
+        A = np.log10(A + 1)
+        
+        if (normalize == True):
+            print('normalizing the acoustic data.')
+            sys.exit(1)
+            
+            mu = A.mean(axis=1).reshape(A.shape[0],1)
+            std = A.std(axis=1).reshape(A.shape[0],1)
 
-        mu = A.mean(axis=1).reshape(A.shape[0],1)
-        std = A.std(axis=1).reshape(A.shape[0],1)
-
-        data = (A-mu)/std
+            data = (A-mu)/std
+        else:
+            data = A
 
         if interp:
             inds = range(A.shape[0])
@@ -46,17 +52,17 @@ def load_pkl_file(fn,interp=True):
     return data
 
 def mp_worker(d):
-    fn, rescale, outdir = d
+    fn, rescale, outdir, normalize = d
     t0 = time()
     try: 
-        plot_unlabeled_sample(fn,rescale,outdir)
+        plot_unlabeled_sample(fn,rescale,outdir, normalize)
         print("sample {} runtime: {:0.2f}".format(fn,time()-t0))
     except Exception as e:
         print('error {}: reason: {}'.format(fn, e))
 
 
-def plot_unlabeled_sample(fn,rescale=True,outfile=None):
-    A_normalized = load_pkl_file(fn,rescale)
+def plot_unlabeled_sample(fn,rescale=True,outfile=None, normalize=True):
+    A_normalized = load_pkl_file(fn,rescale, normalize)
 
     #plt.style.use('ggplot')
     fig = plt.figure()
@@ -96,6 +102,10 @@ if __name__ == '__main__':
     if len(sys.argv) > 2:
         rescale = int(sys.argv[2])
     
+    normalize = True
+    if len(sys.argv) > 3:
+        normalize = int(sys.argv[3])
+        
     if os.path.isdir(fn):
         fns = glob(os.path.join(fn, '*.pkl') )
     else:
@@ -108,7 +118,7 @@ if __name__ == '__main__':
     idx = fn.rfind('/') + 1 #get index of where the file name starts
     queue = []
     for f in fns:
-        queue.append((f, rescale, outdir + str(f[idx:].replace('pkl', 'png'))) )
+        queue.append((f, rescale, outdir + str(f[idx:].replace('pkl', 'png')), normalize) )
     
     mp_handler()
     
