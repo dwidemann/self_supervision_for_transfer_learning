@@ -26,12 +26,8 @@ def load_pkl_file(fn,interp=True, normalize=True):
         #A = np.log10(A + 1)
         
         if (normalize == True):
-            print('normalizing the acoustic data.')
-            sys.exit(1)
-            
             mu = A.mean(axis=1).reshape(A.shape[0],1)
             std = A.std(axis=1).reshape(A.shape[0],1)
-
             data = (A-mu)/std
         else:
             data = A
