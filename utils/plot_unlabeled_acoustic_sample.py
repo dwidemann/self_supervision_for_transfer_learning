@@ -97,7 +97,7 @@ if __name__ == '__main__':
         p = mp.Pool(num_cpus)
         p.map(mp_worker, queue)
 
-    fn = sys.argv[1]
+    input_files = sys.argv[1]
     rescale = 1
     if len(sys.argv) > 2:
         rescale = int(sys.argv[2])
@@ -105,17 +105,20 @@ if __name__ == '__main__':
     normalize = True
     if len(sys.argv) > 3:
         normalize = int(sys.argv[3])
-        
-    if os.path.isdir(fn):
-        fns = glob(os.path.join(fn, '*.pkl') )
-    else:
-        fns = [fn]
+    
     outdir='../images/unlabeled_acoustic/'
+    if len(sys.argv) > 4:
+        outdir = sys.argv[4]
+
+    if os.path.isdir(input_files):
+        fns = glob(os.path.join(input_files, '*.pkl') )
+    else:
+        fns = [input_files]
     
     if not os.path.exists(outdir):
         os.makedirs(outdir)
    
-    idx = fn.rfind('/') + 1 #get index of where the file name starts
+    idx = input_files.rfind('/') + 1 #get index of where the file name starts
     queue = []
     for f in fns:
         queue.append((f, rescale, outdir + str(f[idx:].replace('pkl', 'png')), normalize) )

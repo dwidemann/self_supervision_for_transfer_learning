@@ -27,7 +27,12 @@ if __name__ == '__main__':
     
     if not os.path.exists(outdir):
         os.makedirs(outdir)
-   
+    
+    #used to determine the time frame of each acoustic data sample
+    window=20
+    if len(sys.argv) > 4:
+        window=int(sys.arv[4])
+
     idx = images_dir.rfind('/') + 1 #get index of where the file name starts
     
     mapped_labels = [] #resulting mapping between image names and labels
@@ -43,7 +48,7 @@ if __name__ == '__main__':
         #find all labels related to this image (all images represent a 20 minute range, and all labels represent a 1 minute range)
         from_date = datetime(year=2018, month=month_to_val[image_date[:3]], day=int(image_date[3:5]),\
                                 hour=int(image_date[6:8]), minute=int(image_date[8:10]), second=int(image_date[10:12]) )
-        to_date = from_date + timedelta(minutes=20)
+        to_date = from_date + timedelta(minutes=window)
 
         matching_idxs = (labels[:,0] >= from_date) & (labels[:,0] <= to_date)
         
