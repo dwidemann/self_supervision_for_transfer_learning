@@ -1,6 +1,6 @@
 {
     "name": "ae_resnet_generator",
-    "n_gpu": 4,
+    "n_gpu": 1,
 
     "arch": {
         "type": "ResNet_AE",
@@ -12,10 +12,10 @@
         "type": "ApronDataLoaderGenerator",
         "args": {
             "data_dir": "/gsceph/adapd/phoenix_train_data/apron_labels",
-            "batch_size": 8,
+            "batch_size": 2,
             "shuffle": true,
             "validation_split": 0.1,
-            "num_workers": 8
+            "num_workers": 0
         }
     },
     "optimizer": {
@@ -38,7 +38,7 @@
     "trainer": {
         "epochs": 100,
 
-        "save_dir": "../ae_resnet_results",
+        "save_dir": "../tmp",
         "save_period": 1,
         "verbosity": 2,
         

@@ -3,18 +3,16 @@
     "n_gpu": 2,
 
     "arch": {
-        "type": "AE_Apron",
+        "type": "ResNet_AE",
         "autoencoder": true,
         "args": {
-            "latent_dim": 20,
-            "num_channels": 2
-        }
+	    }
     },
     "data_loader": {
         "type": "AcousticDataLoader",
         "args": {
-            "data_dir": "/gsceph/adapd/acoustic/train_test_split/",
-            "batch_size": 16,
+            "data_dir": "/gsceph/adapd/acoustic/AA_10",
+            "batch_size": 2,
             "shuffle": true,
             "validation_split": 0.1,
             "num_workers": 0
@@ -40,7 +38,7 @@
     "trainer": {
         "epochs": 100,
 
-        "save_dir": "../ae_apron_results",
+        "save_dir": "../ae_acoustic_results",
         "save_period": 1,
         "verbosity": 2,
         

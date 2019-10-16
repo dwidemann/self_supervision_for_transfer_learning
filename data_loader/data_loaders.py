@@ -79,7 +79,7 @@ class AcousticDataset(Dataset):
             R = data['sig']
 
             A = np.abs(R)
-            A = np.log10(A + 1)
+            #A = np.log10(A + 1)
             
             mu = A.mean(axis=1).reshape(A.shape[0],1)
             std = A.std(axis=1).reshape(A.shape[0],1)
@@ -101,7 +101,7 @@ class AcousticDataset(Dataset):
             data = data.astype('float32')
             if len(data.shape) == 2:
                 data = np.expand_dims(data,axis=0)
-            print(data.shape)
+            #print(data.shape)
         return data
 
     def __getitem__(self, idx):

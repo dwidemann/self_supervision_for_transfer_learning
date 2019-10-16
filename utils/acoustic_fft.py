@@ -22,7 +22,7 @@ def save_fft(fn= 'Phoenix_Mar13-134312.bin',channel=5,outdir='acoustic_ffts'):
     fs = 51200
     f0 = 1002.05
     harmonics = [1,2,4]
-    bandwidth = .2
+    bandwidth = .5
     pngFn = os.path.basename(fn).replace('.bin','')
     s = pngFn.replace('Phoenix_','')
     outfile = '{}_channel_{:d}_fft.pkl'.format(s,channel)
