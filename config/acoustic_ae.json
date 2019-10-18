@@ -1,6 +1,6 @@
 {
     "name": "acoustic_ae",
-    "n_gpu": 2,
+    "n_gpu": 1,
 
     "arch": {
         "type": "ResNet_AE",
@@ -12,16 +12,16 @@
         "type": "AcousticDataLoader",
         "args": {
             "data_dir": "/gsceph/adapd/acoustic/AA_10",
-            "batch_size": 2,
+            "batch_size": 16,
             "shuffle": true,
             "validation_split": 0.1,
-            "num_workers": 0
+            "num_workers": 2
         }
     },
     "optimizer": {
         "type": "Adam",
         "args": {
-            "lr": 0.001,
+            "lr": 0.0001,
             "weight_decay": 0,
             "amsgrad": true
         }
@@ -38,7 +38,7 @@
     "trainer": {
         "epochs": 100,
 
-        "save_dir": "../ae_acoustic_results",
+        "save_dir": "../ae_acoustic_results_batch_16",
         "save_period": 1,
         "verbosity": 2,
         
