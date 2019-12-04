@@ -35,8 +35,9 @@ def generate_input(num_sources=128,max_u0=1.,grid_size=100,f0=2,d_Hz=.1,nt=200,d
         freqs.append(f0_samp)
         phase = 0
         if not insync:
-            phase = np.random.rand()
-        f[:,j,i] = torch.tensor(max_u0*np.sin(2*np.pi*(f0_samp*t + phase)))
+            phase = 2*np.pi*np.random.rand()
+        f[:,j,i] = torch.tensor(max_u0*np.sin(2*np.pi*(f0_samp*t)+phase))
+        #plt.plot(t,f[:,j,i].detach().numpy())
     prev_u = torch.zeros((grid_size,grid_size),requires_grad=True)
     u, prev_u = Variable(f, requires_grad=True), Variable(prev_u, requires_grad=True)
     return u, prev_u, source_locs, freqs
@@ -73,6 +74,47 @@ def run_wave_forward(f,prev_u,nt,dt,dx,c):
         soln.append(u)
     soln = np.array([i.detach().numpy() for i in soln])
     return soln
+
+def wave_steady_state(f,prev_u,nt,dt,dx,c,num_keep):
+    u = f[0,:,:]
+    soln = []
+    DT_DX_SQ = c*(dt/dx)**2
+    for i in range(nt-1):
+        next_u = DT_DX_SQ*Laplacian(u) + 2*u - prev_u + dt*f[i,:,:]
+        prev_u = u
+        u = next_u
+        if i >= nt - num_keep -1 :
+            soln.append(u)
+    soln = np.array([i.detach().numpy() for i in soln])
+    return soln
+
+
+def create_movie(s,outfile='wave_equation.mp4'):
+    ti = 0
+    title = 'wave amplitude'
+    u_mx = np.max(np.abs(s))
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.title(title)
+    cmap = plt.cm.ocean
+    img = ax.imshow(s[0], cmap=cmap, vmin=-u_mx, vmax=u_mx)
+    fig.colorbar(img, orientation='vertical')
+    #plt.show()
+
+    # initialization function: plot the background of each frame
+    def init():
+        img = ax.imshow(s[0], cmap=cmap, vmin=-u_mx, vmax=u_mx)
+        return (fig,)
+
+    # animation function. This is called sequentially
+    def animate(i):
+        img = ax.imshow(s[i], cmap=cmap, vmin=-u_mx, vmax=u_mx)
+        return (fig,)
+
+    # call the animator. blit=True means only re-draw the parts that have changed.
+    anim = animation.FuncAnimation(fig, animate, init_func=init,
+                                   frames=len(s), interval=20, blit=True)
+    anim.save(outfile, fps=30, extra_args=['-vcodec', 'libx264'])
 
 def generate_wave_data(num_sources=10,max_u0=1,grid_size=100,nt=200):
     u, u_prev = get_initial_conditions(num_sources,max_u0,grid_size)

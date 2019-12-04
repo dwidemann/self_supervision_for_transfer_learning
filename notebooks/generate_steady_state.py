@@ -12,7 +12,7 @@ outdir = 'samples'
 if not os.path.exists(outdir):
     os.makedirs(outdir)
 
-num_sources_list = np.concatenate([[1],np.arange(10,370,10)])
+num_sources_list = [130] #np.concatenate([[1],np.arange(10,370,10)])
 
 c = 343 # m/s
 f0 = 1002 # Hz
@@ -22,22 +22,6 @@ dt = 1/fs # we have to sample at twice f0
 nt = 30000 #10*60*fs # 10 minutes of data
 dx = .2
 num_keep = 8192
-
-# i had to re-define this function because
-# i only want to keep the last k time steps
-def wave_steady_state(f,prev_u,nt,dt,dx,c,num_keep):
-    u = f[0,:,:]
-    soln = []
-    DT_DX_SQ = c*(dt/dx)**2
-    for i in range(nt-1):
-        next_u = DT_DX_SQ*Laplacian(u) + 2*u - prev_u + dt*f[i,:,:]
-        prev_u = u
-        u = next_u
-        if i >= nt - num_keep -1 :
-            soln.append(u)
-    soln = np.array([i.detach().numpy() for i in soln])
-    return soln
-
 
 for num_sources in num_sources_list:
     t0 = time()
