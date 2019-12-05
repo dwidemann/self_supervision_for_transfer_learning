@@ -15,6 +15,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.animation as manimati
 from matplotlib import animation, rc
+from numpy.fft import rfft
 from IPython.display import HTML
 
 def generate_input(num_sources=128,max_u0=1.,grid_size=100,f0=2,d_Hz=.1,nt=200,dt=.1,insync=False):
@@ -116,13 +117,28 @@ def create_movie(s,outfile='wave_equation.mp4'):
                                    frames=len(s), interval=20, blit=True)
     anim.save(outfile, fps=30, extra_args=['-vcodec', 'libx264'])
 
-def generate_wave_data(num_sources=10,max_u0=1,grid_size=100,nt=200):
-    u, u_prev = get_initial_conditions(num_sources,max_u0,grid_size)
-    # CFL: dt <= C dx
-    dt = .01
-    dx = .2
-    soln = run_wave_forward(u, u_prev, dt, dx, nt)
+def generate_wave_data(num_sources=10,f0=1.,d_Hz=.1,c=1,nt=200,dt=.1,dx=.2,insync=False):
+    u, prev_u, source_locs, f = generate_input(num_sources=num_sources,
+                                               max_u0=1.,
+                                               f0=f0,
+                                               d_Hz=d_Hz,nt=nt,dt=dt,insync=insync)
+    soln = run_wave_forward(u,prev_u,nt,dt,dx,c=c)
     return soln
+
+def plot_fft(num_sources=130,f0=f0,dt=dt,nt=nt,c=c,dx=dx,insync=True,i=50,j=50):
+    s = generate_wave_data(num_sources=num_sources,f0=f0,dt=dt,nt=nt,c=c,dx=dx,insync=True)
+    s0 = s[:,i,j].squeeze()
+    t = dt*np.arange(len(s0))
+    plt.plot(t,s0)
+    nfft = len(s0)
+    plt.show()
+    S = rfft(s0, nfft)
+    fs = 1/dt
+    freqs = np.linspace(0,fs/2,len(S))
+    plt.plot(freqs,np.abs(S))
+    plt.xlabel('Frequency [Hz]')
+    plt.ylabel('Magnitude')
+    plt.show()
 
 from torch.utils.data import Dataset, DataLoader
 class WaveDataset(Dataset):
