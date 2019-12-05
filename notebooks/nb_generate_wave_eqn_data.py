@@ -125,7 +125,7 @@ def generate_wave_data(num_sources=10,f0=1.,d_Hz=.1,c=1,nt=200,dt=.1,dx=.2,insyn
     soln = run_wave_forward(u,prev_u,nt,dt,dx,c=c)
     return soln
 
-def plot_fft(num_sources=130,f0=f0,dt=dt,nt=nt,c=c,dx=dx,insync=True,i=50,j=50):
+def plot_fft(num_sources=130,f0=1,dt=.1,nt=200,c=1,dx=.2,insync=True,i=50,j=50):
     s = generate_wave_data(num_sources=num_sources,f0=f0,dt=dt,nt=nt,c=c,dx=dx,insync=True)
     s0 = s[:,i,j].squeeze()
     t = dt*np.arange(len(s0))

@@ -8,11 +8,11 @@ import pickle
 from time import time
 
 
-outdir = 'samples'
+outdir = 'samples_reduced'
 if not os.path.exists(outdir):
     os.makedirs(outdir)
 
-num_sources_list = [130] #np.concatenate([[1],np.arange(10,370,10)])
+num_sources_list = np.concatenate([[1],np.arange(10,370,10)])
 
 c = 1 # m/s
 f0 = 1002 # Hz
@@ -23,6 +23,8 @@ nt = 2**14 + 1 #10*60*fs # 10 minutes of data
 dx = .0002
 num_keep = 2**14
 insync = True
+num_mics = 100
+kept_mics = np.random.randint(0,100,(num_mics,2))
 
 for num_sources in num_sources_list:
     t0 = time()
@@ -33,14 +35,14 @@ for num_sources in num_sources_list:
 
 
     s = wave_steady_state(u,prev_u,nt,dt,dx,c=c,num_keep=num_keep)
-    '''
+
     s_flat = []
-    for i in range(100):
-        for j in range(100):
-            s_flat.append((np.squeeze(s[:,i,j]),num_sources))
-    '''
+    for mic in kept_mics:
+        i,j = mic
+        s_flat.append((np.squeeze(s[:,i,j]).astype('float32'),num_sources))
+
     fn = os.path.join(outdir,'sample_{:d}_sources_fs_{:d}.pkl'.format(num_sources,int(fs)))
     with open(fn,'wb') as fid:
-        pickle.dump(s,fid)
+        pickle.dump(s_flat,fid)
     print('run-time {:.2f}'.format(time() - t0))
     
