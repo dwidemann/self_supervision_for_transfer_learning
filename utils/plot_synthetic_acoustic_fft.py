@@ -17,9 +17,9 @@ def plot_synthetic_fft(fn,i,j):
     with open(fn, 'rb') as fid:
         D = pickle.load(fid)
         sig = np.squeeze(D[:,i,j])
-    fs = 8116.0
     s = fn.split('_')
     num_sources = int(s[1])
+    fs = float(s[-1].replace('.pkl',''))
     nfft = len(sig)
     #outfile = '{}_synthetic_FFT.png'.format(pngFn)
     S = rfft(sig, nfft)
