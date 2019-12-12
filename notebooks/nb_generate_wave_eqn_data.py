@@ -18,7 +18,7 @@ from matplotlib import animation, rc
 from numpy.fft import rfft
 from IPython.display import HTML
 
-def generate_input(num_sources=128,max_u0=1.,grid_size=100,f0=2,d_Hz=.1,nt=200,dt=.1,insync=False):
+def generate_input(num_sources=128,max_u0=1.,grid_size=100,f0=2,d_Hz=.1,nt=200,dt=.1,insync=False,leftOfF0=True):
     # len(v)*len(w) = 360
     v = np.arange(5,grid_size-5,2)
     w = np.arange(5,20,2)
@@ -29,15 +29,23 @@ def generate_input(num_sources=128,max_u0=1.,grid_size=100,f0=2,d_Hz=.1,nt=200,d
     f = torch.zeros((nt,grid_size,grid_size),requires_grad=True)
     source_locs = []
     freqs = []
+    harmonics = [1,2,4]
+    harmonic_mag = max_u0*np.array([.8,1.,.4])
     for idx in inds:
         i,j = potential_sources[idx]
         source_locs.append(potential_sources[i])
-        f0_samp = d_Hz*np.random.randn() + f0
+        if not leftOfF0:
+            f0_samp = f0 + d_Hz*np.random.randn()
+        else:
+            f0_samp = f0 - d_Hz*np.random.rand() # changed this so that all of the freqs lie to the left
         freqs.append(f0_samp)
         phase = 0
+        s = np.zeros((len(t),))
         if not insync:
             phase = 2*np.pi*np.random.rand()
-        f[:,j,i] = torch.tensor(max_u0*np.sin(2*np.pi*(f0_samp*t)+phase))
+        for h,m in zip(harmonics,harmonic_mag):
+            s = s + m*np.sin(2*np.pi*((h*f0_samp)*t)+phase)
+        f[:,j,i] = torch.tensor(s)
         #plt.plot(t,f[:,j,i].detach().numpy())
     prev_u = torch.zeros((grid_size,grid_size),requires_grad=True)
     u, prev_u = Variable(f, requires_grad=True), Variable(prev_u, requires_grad=True)
@@ -117,11 +125,12 @@ def create_movie(s,outfile='wave_equation.mp4'):
                                    frames=len(s), interval=20, blit=True)
     anim.save(outfile, fps=30, extra_args=['-vcodec', 'libx264'])
 
-def generate_wave_data(num_sources=10,f0=1.,d_Hz=.1,c=1,nt=200,dt=.1,dx=.2,insync=False):
+def generate_wave_data(num_sources=10,f0=1.,d_Hz=.1,c=1,nt=200,dt=.1,dx=.2,insync=False,leftOfF0=True):
     u, prev_u, source_locs, f = generate_input(num_sources=num_sources,
                                                max_u0=1.,
                                                f0=f0,
-                                               d_Hz=d_Hz,nt=nt,dt=dt,insync=insync)
+                                               d_Hz=d_Hz,nt=nt,dt=dt,
+                                               insync=insync,leftOfF0=leftOfF0)
     soln = run_wave_forward(u,prev_u,nt,dt,dx,c=c)
     return soln
 
