@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Oct  1 13:50:30 2019
-
+python plot_acoustic_fft.py /data/ADAPD/acoustic/test_audio/Phoenix_Mar20-115655.bin 5
 @author: widemann1
 """
 
